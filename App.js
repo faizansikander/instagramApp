@@ -56,6 +56,7 @@ export class App extends Component {
 
   componentDidMount() {
     firebase.auth().onAuthStateChanged((user) => {
+      console.log('Not equal to user',!user);
 
       if (!user) {
         this.setState({
