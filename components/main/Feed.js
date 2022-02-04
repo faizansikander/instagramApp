@@ -7,26 +7,17 @@ require("firebase/firestore");
 
 function Feed(props) {
   const [posts, setPosts] = useState([]);
- //console.log("users",props.store)
+ console.log("Store------",props.store)
   useEffect(() => {
     let posts = [];
-    if (props.usersFollowingLoaded == props.following.length) {
-      for (let i = 0; i < props.following.length; i++) {
-         
-         const user = props.users.find((el) => el.uid === props.following[i]);        
-        
-        if (user != undefined) {
-          posts = [...posts, ...user.posts];
-        }
-      }
-
-      posts.sort(function (x, y) {
+    if (props.usersFollowingLoaded == props.following.length && props.following.length !== 0) {
+      props.feed.sort(function (x, y) {
         return x.creation - y.creation;
       });
 
-      setPosts(posts);
+      setPosts(props.feed);
     }
-  }, [props.usersFollowingLoaded]);
+  }, [props.usersFollowingLoaded ,  props.feed]);
 
   //console.log({ currentUser, posts });
 
@@ -78,7 +69,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = (store) => ({
   currentUser: store.userState.currentUser,
   following: store.userState.following,
-  users: store.usersState.users,
+  feed: store.usersState.feed,
   usersFollowingLoaded: store.usersState.usersFollowingLoaded,
   store: store,
 
