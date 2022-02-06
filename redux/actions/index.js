@@ -104,73 +104,138 @@ export function fetchUsersData(uid, getPosts) {
           }
         });
       if (getPosts) {
+        console.log("get posts",getPosts)
         dispatch(fetchUserFollowingPosts(uid));
       }
     }
   };
 }
 
+// export function fetchUserFollowingPosts(uid) {
+//   return (dispatch, getState) => {
+//     firebase
+//       .firestore()
+//       .collection("posts")
+//       .doc(uid)
+//       .collection("userPosts")
+//       .orderBy("creation", "asc")
+//       .get()
+//       .then((snapshot) => {
+//         /* const uid =snapshot.query.EP.path.segments[1];
+//          const uid = snapshot.docs[0].ref.path.split('/')[1];
+//          */
+
+//         //console.log("uid segment",uid)
+//         //console.log("Snapshot1",snapshot)
+//          const user = getState().usersState.users.find(el => el.uid === uid) ;
+
+//         let posts = snapshot.docs.map((doc) => {
+//           const data = doc.data();
+//           const id = doc.id;
+
+//           return { id, ...data, user };
+//         });
+//                        console.log('Show Posts1111    ', posts)
+//                        if(posts.length>0){
+//                         for (let i = 0; i < posts.length; i++) {
+//                           dispatch(fetchUserFollowingLikes(uid, posts[i].id));
+//                         }
+                
+//                         dispatch({ type: USERS_POSTS_STATE_CHANGE, posts, uid });
+                  
+//                        }
+      
+//         console.log("getstate", getState());
+//       });
+//   };
+// }
+
+// export function fetchUserFollowingLikes(uid, postId) {
+//   return (dispatch, getState) => {
+//     firebase
+//       .firestore()
+//       .collection("posts")
+//       .doc(uid)
+//       .collection("userPosts")
+//       .doc(postId)
+//       .collection("likes")
+//       .doc(firebase.auth().currentUser.uid)
+//       .onSnapshot((snapshot) => {
+//         // const user = getState().usersState.users.find(el => el.uid === uid) ;
+
+//      //   const postId = snapshot.ZE.path.segments[3];
+
+//         console.log("Index JS -----", postId);
+
+//         let currentUserLike = false;
+
+//         if (snapshot.exists) {
+//           currentUserLike = true;
+//         }
+
+//         dispatch({ type: USERS_LIKES_STATE_CHANGE, postId, currentUserLike });
+
+//         console.log("getstate", getState());
+//       });
+//   };
+// }
+
+
+
 export function fetchUserFollowingPosts(uid) {
-  return (dispatch, getState) => {
-    firebase
-      .firestore()
-      .collection("posts")
-      .doc(uid)
-      .collection("userPosts")
-      .orderBy("creation", "asc")
-      .get()
-      .then((snapshot) => {
-        /* const uid =snapshot.query.EP.path.segments[1];
-         const uid = snapshot.docs[0].ref.path.split('/')[1];
-         */
+  console.log("fetchUserFollowingPosts")
+  return ((dispatch, getState) => {
+      firebase.firestore()
+          .collection("posts")
+          .doc(uid)
+          .collection("userPosts")
+          .orderBy("creation", "asc")
+          .get()
+          .then((snapshot) => {
+            // const uid =snapshot.query.EP.path.segments[1];
+              // const uid = snapshot.docs[0].ref.path.split('/')[1];
+              const user = getState().usersState.users.find(el => el.uid === uid);
 
-        //console.log("uid segment",uid)
-        //console.log("Snapshot1",snapshot)
-         const user = getState().usersState.users.find(el => el.uid === uid) ;
 
-        let posts = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          const id = doc.id;
+              let posts = snapshot.docs.map(doc => {
+                  const data = doc.data();
+                  const id = doc.id;
+                  return { id, ...data, user }
+              })
+              // if(posts.length>0){
+                console.log("posts122212",posts)
+                for (let i = 0; i < posts.length; i++) {
+                    dispatch(fetchUsersFollowingLikes(uid, posts[i].id))
+                }
+                dispatch({ type: USERS_POSTS_STATE_CHANGE, posts, uid })
+              // }
+           
 
-          return { id, ...data, user };
-        });
-        //                console.log('Show Posts1111    ', posts)
-        for (let i = 0; i < posts.length; i++) {
-          dispatch(fetchUserFollowingLikes(uid, posts[i].id));
-        }
-        dispatch({ type: USERS_POSTS_STATE_CHANGE, posts, uid });
-
-        console.log("getstate", getState());
-      });
-  };
+          })
+  })
 }
 
-export function fetchUserFollowingLikes(uid, postId) {
-  return (dispatch, getState) => {
-    firebase
-      .firestore()
-      .collection("posts")
-      .doc(uid)
-      .collection("userPosts")
-      .doc(postId)
-      .collection("likes")
-      .doc(firebase.auth().currentUser.uid)
-      .onSnapshot((snapshot) => {
-        // const user = getState().usersState.users.find(el => el.uid === uid) ;
+export function fetchUsersFollowingLikes(uid, postId) {
+  let cntr = 0;
+  console.log('Fetch User Execution Cnt',cntr+1);
+  return ((dispatch, getState) => {
+      let listener = firebase.firestore()
+          .collection("posts")
+          .doc(uid)
+          .collection("userPosts")
+          .doc(postId)
+          .collection("likes")
+          .doc(firebase.auth().currentUser.uid)
+          .onSnapshot((snapshot) => {
+              const postId = snapshot.id;
 
-     //   const postId = snapshot.ZE.path.segments[3];
+              let currentUserLike = false;
+              if (snapshot.exists) {
+                  currentUserLike = true;
+              }
 
-        console.log("Index JS -----", postId);
+              dispatch({ type: USERS_LIKES_STATE_CHANGE, postId, currentUserLike })
+          })
 
-        let currentUserLike = false;
-
-        if (snapshot.exists) {
-          currentUserLike = true;
-        }
-
-        dispatch({ type: USERS_LIKES_STATE_CHANGE, postId, currentUserLike });
-
-        console.log("getstate", getState());
-      });
-  };
+  })
 }

@@ -7,35 +7,42 @@ require("firebase/firestore");
 
 function Feed(props) {
   const [posts, setPosts] = useState([]);
- console.log("Store------",props.store)
+  //console.log("Store------",props.store)
   useEffect(() => {
     let posts = [];
-    if (props.usersFollowingLoaded == props.following.length && props.following.length !== 0) {
+    if (
+       props.usersFollowingLoaded ==
+      props.following.length && 
+      props.following.length !== 0) {
+
       props.feed.sort(function (x, y) {
-        return x.creation - y.creation;
+        return x?.creation - y?.creation;
       });
 
       setPosts(props.feed);
-    }
-  }, [props.usersFollowingLoaded ,  props.feed]);
 
+    }
+  }, [props.usersFollowingLoaded,props.feed ]);
+  
   //console.log({ currentUser, posts });
+  console.log("users posts", posts)
 
   return (
     <View style={styles.container}>
       <View style={styles.containerGallery}>
+
         <FlatList
           numColumns={1}
           horizontal={false}
           data={posts}
           renderItem={({ item }) => (
             <View style={styles.containerImage}>
-              <Text style={styles.container}>{item.user.name}</Text>
-              <Image style={styles.image} source={{ uri: item.downloadURL }} />
+              <Text style={styles.container}>{item?.user?.name}</Text>
+              <Image style={styles.image} source={{ uri: item?.downloadURL }} />
 
               <Text onPress={() => props.navigation.navigate('Comment',
-              {postId: item.id , uid: item.user.uid }) 
-            }
+                { postId: item?.id, uid: item.user?.uid })
+              }
               >View Comments...</Text>
             </View>
           )}
