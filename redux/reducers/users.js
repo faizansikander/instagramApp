@@ -41,9 +41,10 @@ export const users = (state = initialState, action) => {
       };
 
       
-
+// To Clear data
     case CLEAR_DATA: {
       return initialState;
+
     }
 
     default:
